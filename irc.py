@@ -49,7 +49,7 @@ class RelayToIRC(irc.IRCClient):
         source.run()
 
     def privmsg(self, user, channel, message):
-        if message.find(self.nickname) >= 0:
+        if not self.config["deaf"] and message.find(self.nickname) >= 0:
             self.brain.respond(user, message)
 
     def write(self, data):

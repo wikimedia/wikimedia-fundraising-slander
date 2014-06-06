@@ -40,6 +40,9 @@ def parse_args(args):
     if "source_url" not in config:
         config["source_url"] = "https://github.com/adamwight/slander"
 
+    if "deaf" not in config:
+        config["deaf"] = False
+
     global test
     test = False
     if "test" in config:
