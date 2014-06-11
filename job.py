@@ -1,6 +1,7 @@
 from twisted.internet.task import LoopingCall
 import copy
 
+
 class JobQueue(object):
     """Create and poll jobs"""
 
@@ -8,8 +9,8 @@ class JobQueue(object):
     jobs_def = []
 
     def __init__(self, definition, sink, interval):
-        """
-        Read job definitions from a config source, create an instance of the job using its configuration, and store the config for reference.
+        """Read job definitions from a config source, create an instance of the
+        job using its configuration, and store the config for reference.
         """
         self.sink = sink
         self.interval = interval

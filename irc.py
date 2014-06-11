@@ -1,6 +1,5 @@
 import datetime
 
-#pip install twisted twisted.words
 from twisted.words.protocols import irc
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.internet import reactor
@@ -8,6 +7,7 @@ from twisted.internet import reactor
 import text
 from job import JobQueue
 from brain import Brain
+
 
 class RelayToIRC(irc.IRCClient):
     """
@@ -29,10 +29,19 @@ class RelayToIRC(irc.IRCClient):
 
         if "pass" in self.config["irc"]:
             if "ownermail" in self.config["irc"]:
-                self.msg("NickServ", "REGISTER %s %s" % (self.config["irc"]["pass"], self.config["irc"]["ownermail"]))
+                cmd = "REGISTER {password} {addr}".format(
+                    password=self.config["irc"]["pass"],
+                    addr=self.config["irc"]["ownermail"]
+                )
+                self.msg("NickServ", cmd)
             elif "regverify" in self.config["irc"]:
-                self.msg("NickServ", "VERIFY REGISTER %s %s" % (self.config["irc"]["nick"], self.config["irc"]["regverify"]))
-            self.msg("NickServ", "IDENTIFY %s" % self.config["irc"]["pass"])
+                cmd = "VERIFY REGISTER {nick} {verify}".format(
+                    nick=self.config["irc"]["nick"],
+                    verify=self.config["irc"]["regverify"]
+                )
+                self.msg("NickServ", cmd)
+            cmd = "IDENTIFY {pw}".format(pw=self.config["irc"]["pass"])
+            self.msg("NickServ", cmd)
 
     def signedOn(self):
         self.join(self.channel)
@@ -40,7 +49,7 @@ class RelayToIRC(irc.IRCClient):
     def joined(self, channel):
         print "Joined channel %s as %s" % (channel, self.nickname)
         self.brain = Brain(self.config, sink=self)
-        #XXX get outta here:
+        # XXX get outta here:
         source = JobQueue(
             definition=self.config["jobs"],
             sink=self,
@@ -60,11 +69,14 @@ class RelayToIRC(irc.IRCClient):
         self.say(self.channel, data.encode('ascii', 'replace'))
         self.timestamp = datetime.datetime.utcnow()
 
-
     @staticmethod
     def run(config):
         factory = ReconnectingClientFactory()
         factory.protocol = RelayToIRC
         factory.config = config
-        reactor.connectTCP(config["irc"]["host"], config["irc"]["port"], factory)
+        reactor.connectTCP(
+            config["irc"]["host"],
+            config["irc"]["port"],
+            factory
+        )
         reactor.run()

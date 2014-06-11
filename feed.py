@@ -1,9 +1,11 @@
 import feedparser
 
+
 class FeedPoller(object):
     """
     Generic RSS/Atom feed watcher
     """
+
     last_seen_id = None
 
     def __init__(self, source=None):

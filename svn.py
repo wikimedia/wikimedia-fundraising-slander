@@ -4,10 +4,14 @@ from xml.etree.cElementTree import parse as xmlparse
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 
+
 class SvnPoller(object):
     """
-    Run "svn info" and "svn log -r REV" to get metadata for the most recent commits.
+    Run "svn info" and "svn log -r REV" to get metadata for the most recent
+    commits.
     """
+
+    previous_revision = None
 
     def __init__(self, root=None, args=None, changeset_url_format=None):
         self.pre = ["svn", "--xml"]
@@ -18,7 +22,7 @@ class SvnPoller(object):
         print "Initializing SVN poller: %s" % (" ".join(self.pre)+" "+root, )
 
     def svn(self, *cmd):
-        pipe = Popen(self.pre +  list(cmd) + [self.root], stdout=PIPE)
+        pipe = Popen(self.pre + list(cmd) + [self.root], stdout=PIPE)
         try:
             data = pipe.communicate()[0]
         except IOError:
@@ -42,7 +46,6 @@ class SvnPoller(object):
     def changeset_url(self, revision):
         return self.changeset_url_format % (revision, )
 
-    previous_revision = None
     def check(self):
         try:
             latest = self.revision()

@@ -3,6 +3,7 @@ from feed import FeedPoller
 
 import re
 
+
 class MinglePoller(FeedPoller):
     """
     Format changes to Mingle cards
@@ -19,13 +20,24 @@ class MinglePoller(FeedPoller):
         assignments = []
         details = entry.content[0].value
         assignment_phrases = [
-            r'(?P<property>[^,>]+) set to (?P<value>[^,<]+\w)',
-            r'(?P<property>[^,>]+) changed from (?P<previous_value>[^,<]+) to (?P<value>[^,<]+\w)',
+            r"""(?x)
+                (?P<property> [^,>]+ )
+                \s set \s to \s
+                (?P<value> [^,<]+ \w )
+            """,
+            r"""(?x)
+                (?P<property> [^,>]+ )
+                \s changed \s from \s
+                (?P<previous_value> [^,<]+ )
+                \s to \s
+                (?P<value> [^,<]+ \w )
+            """,
         ]
         for pattern in assignment_phrases:
             for m in re.finditer(pattern, details):
                 normal_form = None
-                if re.match(r'\d{4}/\d{2}/\d{2}|\(not set\)', m.group('value')):
+                date_re = r'\d{4}/\d{2}/\d{2}|\(not set\)'
+                if re.match(date_re, m.group('value')):
                     pass
                 elif re.match(r'Planning - Sprint', m.group('property')):
                     n = re.search(r'(Sprint \d+)', m.group('value'))
@@ -34,13 +46,17 @@ class MinglePoller(FeedPoller):
                 elif 'Deployed' == m.group('value'):
                     normal_form = "*Deployed*"
                 else:
-                    normal_form = text.abbrevs(m.group('property')+" : "+m.group('value'))
+                    normal_form = text.abbrevs("{prop} : {value}".format(
+                        prop=m.group('property'),
+                        value=m.group('value')
+                    ))
 
                 if normal_form:
                     assignments.append(normal_form)
         summary = '|'.join(assignments)
 
-        for m in re.finditer(r'(?P<property>[^:>]+): (?P<value>[^<]+)', details):
+        assignment_re = r'(?P<property>[^:>]+): (?P<value>[^<]+)'
+        for m in re.finditer(assignment_re, details):
             if m.group('property') == 'Comment added':
                 summary = m.group('value')+" "+summary
         for m in re.finditer(r'Description changed', details):

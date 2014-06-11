@@ -8,11 +8,13 @@ import os
 
 import yaml
 
+
 def load_config(path):
     dotfile = os.path.expanduser(path)
     if os.path.exists(dotfile):
         print "Reading config from %s" % (dotfile, )
         return yaml.load(file(dotfile))
+
 
 def parse_args(args):
     if len(args) == 2:
@@ -49,6 +51,7 @@ def parse_args(args):
         test = config["test"]
 
     return config
+
 
 if __name__ == "__main__":
     RelayToIRC.run(parse_args(sys.argv))

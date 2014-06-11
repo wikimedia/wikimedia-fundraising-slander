@@ -3,15 +3,19 @@
 import re
 from HTMLParser import HTMLParser
 
+
 maxlen = 200
+
 
 def strip(msg, html=True, space=True, truncate=False):
     class MLStripper(HTMLParser):
         def __init__(self):
             self.reset()
             self.fed = []
+
         def handle_data(self, d):
             self.fed.append(d)
+
         def get_data(self):
             return ''.join(self.fed)
 
@@ -25,11 +29,14 @@ def strip(msg, html=True, space=True, truncate=False):
         msg = trunc(msg)
     return msg
 
+
 def abbrevs(name):
     """
-    Turn a space-delimited name into initials, e.g. Frank Ubiquitous Zappa -> FUZ
+    Turn a space-delimited name into initials, e.g. Frank Ubiquitous Zappa ->
+    FUZ
     """
     return "".join([w[:1] for w in name.split()])
+
 
 def trunc(message):
     if len(message) > maxlen:

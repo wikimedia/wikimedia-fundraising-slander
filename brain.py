@@ -3,6 +3,7 @@ import json
 
 from job import JobQueue
 
+
 class Brain(object):
     """Respond to incoming commands"""
 
@@ -25,28 +26,40 @@ class Brain(object):
 
     def respond(self, user, message):
         if re.search(r'\bhelp\b', message):
-            self.say("If I only had a brain: %s -- Commands: help config kill last" % (self.source_url, ))
+            msg = "Improve this project: {src}".format(self.source_url)
+            self.say(msg)
         elif re.search(r'\bconfig\b', message):
-            match = re.search(r'\b(?P<name>[^=\s]+)\s*=\s*(?P<value>\S+)', message)
+            assignment_re = r"""(?x)
+                \b
+                (?P<name> [^=\s]+ )
+                \s* = \s*
+                (?P<value> \S+ )
+            """
+            match = re.search(assignment_re, message)
             if match:
                 self.config[match.group('name')] = match.group('value')
 
             dump = self.config
             dump['jobs'] = JobQueue.describe()
             dumpstr = json.dumps(self.redact(dump))
-            self.say("Configuration: [{dump}]".format(dump=dumpstr), force=True)
-        #elif re.search(r'\bkill\b', message):
-        #    self.say("Squeal! Killed by %s" % (user, ))
-        #    JobQueue.killall()
-        #    #self.quit()
-        #    #self.factory.stopTrying()
+            self.say(
+                "Configuration: [{dump}]".format(dump=dumpstr),
+                force=True
+            )
+        # elif re.search(r'\bkill\b', message):
+        #     self.say("Squeal! Killed by %s" % (user, ))
+        #     JobQueue.killall()
+        #     #self.quit()
+        #     #self.factory.stopTrying()
         elif re.search(r'\blast\b', message):
             if self.sink.timestamp:
                 self.say("My last post was %s UTC" % (self.sink.timestamp, ))
             else:
                 self.say("No activity.")
         else:
-            print "Failed to handle incoming command: %s said %s" % (user, message)
+            print "Failed to handle IRC command: {user} said {msg}".format(
+                user=user, msg=message
+            )
 
     def redact(self, data):
         FORBIDDEN_KEY_PATTERN = r'pw|pass|password'
