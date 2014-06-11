@@ -7,8 +7,8 @@ class TailPoller(object):
         self.path = path
         self.file = file(path, "r")
 
-    def check(self):
-        data = self.file.readline().strip()
+        # fast-forward to the end-of-file
+        self.file.seek(0, 2)
 
-        if data:
-            yield data
+    def check(self):
+        return [l.strip() for l in self.file.readlines()]
