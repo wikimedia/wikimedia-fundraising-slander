@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 '''Entrypoint'''
 
-from irc import RelayToIRC
-
 import sys
 import os
-
 import yaml
+
+import irc
+import log
 
 
 def load_config(path):
     dotfile = os.path.expanduser(path)
     if os.path.exists(dotfile):
-        print "Reading config from %s" % (dotfile, )
+        log.info("Reading config from %s" % (dotfile, ))
         return yaml.load(file(dotfile))
 
 
@@ -54,4 +54,6 @@ def parse_args(args):
 
 
 if __name__ == "__main__":
-    RelayToIRC.run(parse_args(sys.argv))
+    log.info("Starting slander")
+    irc.RelayToIRC.run(parse_args(sys.argv))
+    log.info("Exiting slander")

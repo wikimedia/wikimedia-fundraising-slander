@@ -4,9 +4,10 @@ from twisted.words.protocols import irc
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.internet import reactor
 
+import brain
+import job
+import log
 import text
-from job import JobQueue
-from brain import Brain
 
 
 class RelayToIRC(irc.IRCClient):
@@ -47,10 +48,10 @@ class RelayToIRC(irc.IRCClient):
         self.join(self.channel)
 
     def joined(self, channel):
-        print "Joined channel %s as %s" % (channel, self.nickname)
-        self.brain = Brain(self.config, sink=self)
+        log.info("Joined channel %s as %s" % (channel, self.nickname))
+        self.brain = brain.Brain(self.config, sink=self)
         # XXX get outta here:
-        source = JobQueue(
+        source = job.JobQueue(
             definition=self.config["jobs"],
             sink=self,
             interval=self.config["poll_interval"]

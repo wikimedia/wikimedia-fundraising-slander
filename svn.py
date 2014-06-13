@@ -4,6 +4,8 @@ from xml.etree.cElementTree import parse as xmlparse
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 
+import log
+
 
 class SvnPoller(object):
     """
@@ -19,7 +21,11 @@ class SvnPoller(object):
             self.pre += args.split()
         self.root = root
         self.changeset_url_format = changeset_url_format
-        print "Initializing SVN poller: %s" % (" ".join(self.pre)+" "+root, )
+        argstr = "{flags} {rootdir}".format(
+            flags=" ".join(self.pre),
+            rootdir=root
+        )
+        log.info("Initializing SVN poller: " + argstr)
 
     def svn(self, *cmd):
         pipe = Popen(self.pre + list(cmd) + [self.root], stdout=PIPE)
@@ -54,4 +60,4 @@ class SvnPoller(object):
                     yield "r%s by %s: %s -- %s" % self.revision_info(rev)
             self.previous_revision = latest
         except Exception, e:
-            print "ERROR: %s" % e
+            log.error(e)

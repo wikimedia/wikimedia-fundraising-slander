@@ -1,17 +1,18 @@
-import text
-from feed import FeedPoller
-
 import re
 
+import feed
+import log
+import text
 
-class MinglePoller(FeedPoller):
+
+class MinglePoller(feed.FeedPoller):
     """
     Format changes to Mingle cards
     """
     def parse(self, entry):
         m = re.search(r'^(.*/([0-9]+))', entry.id)
         if not m:
-            print "bad entry, %s" % (entry.id, )
+            log.error("bad entry, %s" % (entry.id, ))
             return None
         url = m.group(1)
         issue = int(m.group(2))

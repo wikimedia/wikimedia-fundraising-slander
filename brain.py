@@ -1,7 +1,8 @@
 import re
 import json
 
-from job import JobQueue
+import job
+import log
 
 
 class Brain(object):
@@ -20,7 +21,7 @@ class Brain(object):
 
     def say(self, message, force=False):
         if not force and 'mute' in self.config and int(self.config['mute']):
-            print("muffling msg: " + message)
+            log.info("muffling msg: " + message)
             return
         self.sink.say(self.sink.channel, message)
 
@@ -40,7 +41,7 @@ class Brain(object):
                 self.config[match.group('name')] = match.group('value')
 
             dump = self.config
-            dump['jobs'] = JobQueue.describe()
+            dump['jobs'] = job.JobQueue.describe()
             dumpstr = json.dumps(self.redact(dump))
             self.say(
                 "Configuration: [{dump}]".format(dump=dumpstr),
@@ -48,7 +49,7 @@ class Brain(object):
             )
         # elif re.search(r'\bkill\b', message):
         #     self.say("Squeal! Killed by %s" % (user, ))
-        #     JobQueue.killall()
+        #     job.JobQueue.killall()
         #     #self.quit()
         #     #self.factory.stopTrying()
         elif re.search(r'\blast\b', message):
@@ -57,9 +58,9 @@ class Brain(object):
             else:
                 self.say("No activity.")
         else:
-            print "Failed to handle IRC command: {user} said {msg}".format(
+            log.error("Failed to handle IRC command: {user} said {msg}".format(
                 user=user, msg=message
-            )
+            ))
 
     def redact(self, data):
         FORBIDDEN_KEY_PATTERN = r'pw|pass|password'

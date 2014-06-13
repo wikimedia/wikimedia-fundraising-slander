@@ -1,5 +1,7 @@
 import feedparser
 
+import log
+
 
 class FeedPoller(object):
     """
@@ -9,7 +11,7 @@ class FeedPoller(object):
     last_seen_id = None
 
     def __init__(self, source=None):
-        print "Initializing feed poller: %s" % (source, )
+        log.info("Initializing feed poller: %s" % (source, ))
         self.source = source
 
     def check(self):

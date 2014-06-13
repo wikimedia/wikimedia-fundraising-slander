@@ -1,5 +1,7 @@
-from twisted.internet.task import LoopingCall
 import copy
+from twisted.internet.task import LoopingCall
+
+import log
 
 
 class JobQueue(object):
@@ -52,4 +54,4 @@ class JobQueue(object):
         task = LoopingCall(self.check)
         JobQueue.threads = [task]
         task.start(self.interval)
-        print "Started polling jobs, every %d seconds." % (self.interval, )
+        log.info("Started polling jobs, every %d seconds." % (self.interval, ))
