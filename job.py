@@ -1,4 +1,5 @@
 import copy
+import re
 from twisted.internet.task import LoopingCall
 
 import log
@@ -41,7 +42,18 @@ class JobQueue(object):
         for job in JobQueue.jobs_def:
             for line in job.check():
                 if line:
+                    line = self.massage_content(line, job)
                     self.sink.write(line)
+
+    def massage_content(self, line, job):
+        """Do job-specific munging of the output line, when configured"""
+
+        if "massage_regexes" in job.config:
+            for masseuse in job.config["massage_regexes"]:
+                from_re, to_str = masseuse.items()[0]
+                line = re.sub(from_re, to_str, line)
+
+        return line
 
     @staticmethod
     def killall():
