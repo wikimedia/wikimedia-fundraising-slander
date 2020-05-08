@@ -59,5 +59,5 @@ class SvnPoller(object):
                 for rev in range(self.previous_revision + 1, latest + 1):
                     yield "r%s by %s: %s -- %s" % self.revision_info(rev)
             self.previous_revision = latest
-        except Exception, e:
+        except Exception as e:
             log.error(e)

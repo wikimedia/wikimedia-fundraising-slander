@@ -32,7 +32,7 @@ class TailPoller(object):
                 self.file = None
 
         if not self.file:
-            self.file = file(self.path, "r")
+            self.file = open(self.path, "r")
             self.inode = os.fstat(self.file.fileno()).st_ino
 
     def check(self):
@@ -45,7 +45,7 @@ class TailPoller(object):
             log.error(ex)
             return
 
-        stripped = [l.strip() for l in self.output_buffer]
+        stripped = [line.strip() for line in self.output_buffer]
         self.output_buffer = []
         return stripped
 

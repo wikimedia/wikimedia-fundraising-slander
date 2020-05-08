@@ -27,7 +27,7 @@ class Brain(object):
 
     def respond(self, user, message):
         if re.search(r'\bhelp\b', message):
-            msg = "Improve this project: {src}".format(self.source_url)
+            msg = "Improve this project: {src}".format(src=self.source_url)
             self.say(msg)
         elif re.search(r'\bconfig\b', message):
             assignment_re = r"""(?x)

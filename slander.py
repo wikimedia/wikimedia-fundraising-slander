@@ -13,7 +13,7 @@ def load_config(path):
     dotfile = os.path.expanduser(path)
     if os.path.exists(dotfile):
         log.info("Reading config from %s" % (dotfile, ))
-        return yaml.load(file(dotfile))
+        return yaml.load(open(dotfile))
 
 
 def parse_args(args):
