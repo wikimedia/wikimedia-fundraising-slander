@@ -2,6 +2,7 @@ import datetime
 
 from twisted.words.protocols import irc
 from twisted.internet.protocol import ReconnectingClientFactory
+from twisted.internet.ssl import ClientContextFactory
 from twisted.internet import reactor
 
 import brain
@@ -75,9 +76,24 @@ class RelayToIRC(irc.IRCClient):
         factory = ReconnectingClientFactory()
         factory.protocol = RelayToIRC
         factory.config = config
-        reactor.connectTCP(
-            config["irc"]["host"],
-            config["irc"]["port"],
-            factory
-        )
+        if (config["irc"]["ssl"] is True):
+            sslClientContextFactory = ClientContextFactory()
+            log.info("connecting to %s:%s using ssl" % (
+                config["irc"]["host"], config["irc"]["port"]
+            ))
+            reactor.connectSSL(
+                config["irc"]["host"],
+                config["irc"]["port"],
+                factory,
+                sslClientContextFactory
+            )
+        else:
+            log.info("connecting to %s:%s" % (
+                config["irc"]["host"], config["irc"]["port"]
+            ))
+            reactor.connectTCP(
+                config["irc"]["host"],
+                config["irc"]["port"],
+                factory
+            )
         reactor.run()

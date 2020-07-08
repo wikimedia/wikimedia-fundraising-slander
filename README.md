@@ -5,11 +5,11 @@ Installation
 
     git clone https://github.com/adamwight/slander
 
-    pip install twisted feedparser PyYAML irc
+    pip install twisted feedparser PyYAML irc pyOpenSSL service-identity
 
 OR
 
-    apt-get install python-twisted python-feedparser python-yaml python-irclib
+    apt-get install python-twisted python-feedparser python-yaml python-irclib python-openssl python-service-identity
 
 Configuration
 =============
@@ -51,6 +51,7 @@ requires spaces, not tabs, and alignment must be preserved...
     irc:
         host: irc.freenode.net
         port: 6667
+        #ssl: True
         nick: civi-activity
         # Optional unless your bot is registered
         pass: FOO

@@ -45,6 +45,9 @@ def parse_args(args):
     if "deaf" not in config:
         config["deaf"] = False
 
+    if "ssl" not in config["irc"]:
+        config["irc"]["ssl"] = False
+
     global test
     test = False
     if "test" in config:
