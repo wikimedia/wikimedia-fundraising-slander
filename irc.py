@@ -22,6 +22,10 @@ class RelayToIRC(irc.IRCClient):
         self.nickname = self.config["irc"]["nick"]
         self.realname = self.config["irc"]["realname"]
         self.channel = self.config["irc"]["channel"]
+        if "channel_key" in self.config["irc"]:
+            self.channel_key = self.config["irc"]["channel_key"]
+        else:
+            self.channel_key = ""
         if "maxlen" in self.config["irc"]:
             text.maxlen = self.config["irc"]["maxlen"]
 
@@ -46,7 +50,7 @@ class RelayToIRC(irc.IRCClient):
             self.msg("NickServ", cmd)
 
     def signedOn(self):
-        self.join(self.channel)
+        self.join(self.channel, self.channel_key)
 
     def joined(self, channel):
         log.info("Joined channel %s as %s" % (channel, self.nickname))

@@ -39,6 +39,7 @@ requires spaces, not tabs, and alignment must be preserved...
         realname: CiviCRM svn and jira notification bot
         # Note that quotes are necessary around #channames
         channel: "#civicrm-test"
+        #channel_key: "channel-password"
         # Truncate messages longer than this many characters
         maxlen: 200
 
