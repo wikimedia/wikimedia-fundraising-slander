@@ -1,8 +1,8 @@
 import re
 import json
 
-import job
-import log
+from . import job
+from . import log
 
 
 class Brain(object):

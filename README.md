@@ -5,7 +5,7 @@ Installation
 
     git clone https://gerrit.wikimedia.org/r/wikimedia/fundraising/slander
 
-    pip install twisted feedparser PyYAML irc pyOpenSSL service-identity
+    pip install -e slander
 
 OR
 
@@ -55,15 +55,15 @@ Running
 
 To start the bot, call
 
-    ./slander/slander.py
+    slander
 
 If you want to specify a config file, pass it as an argument:
 
-    ./slander/slander.py /etc/slander/PROJ.yaml
+    slander /etc/slander/PROJ.yaml
 
 Alternatively, you can give just the project name, and slander will look in /etc/slander/PROJ.yaml:
 
-    ./slander/slander.py PROJ
+    slander PROJ
 
 Credits
 =======

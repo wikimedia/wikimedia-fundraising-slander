@@ -2,7 +2,7 @@ import copy
 import re
 from twisted.internet.task import LoopingCall
 
-import log
+from . import log
 
 
 class JobQueue(object):
@@ -19,8 +19,9 @@ class JobQueue(object):
         self.interval = interval
         JobQueue.jobs_def = []
         for type_name, options in definition.items():
+            module_name = "slander." + type_name
             classname = type_name.capitalize() + "Poller"
-            m = __import__(type_name, fromlist=[classname])
+            m = __import__(module_name, fromlist=[classname])
             if hasattr(m, classname):
                 klass = getattr(m, classname)
                 job = klass(**options)

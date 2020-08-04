@@ -1,6 +1,6 @@
 import feedparser
 
-import log
+from . import log
 
 
 class FeedPoller(object):

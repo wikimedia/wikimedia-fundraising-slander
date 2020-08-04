@@ -1,7 +1,7 @@
 import os
 import os.path
 
-import log
+from . import log
 
 
 class TailPoller(object):

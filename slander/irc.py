@@ -5,10 +5,10 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.internet.ssl import ClientContextFactory
 from twisted.internet import reactor
 
-import brain
-import job
-import log
-import text
+from . import brain
+from . import job
+from . import log
+from . import text
 
 
 class RelayToIRC(irc.IRCClient):

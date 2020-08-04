@@ -5,8 +5,7 @@ import sys
 import os
 import yaml
 
-import irc
-import log
+from slander import irc, log
 
 
 def load_config(path):
