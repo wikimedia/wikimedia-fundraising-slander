@@ -3,7 +3,7 @@ Relay feed and vcs activities to an IRC channel.
 Installation
 ============
 
-    git clone https://github.com/adamwight/slander
+    git clone https://gerrit.wikimedia.org/r/wikimedia/fundraising/slander
 
     pip install twisted feedparser PyYAML irc pyOpenSSL service-identity
 
@@ -64,9 +64,9 @@ requires spaces, not tabs, and alignment must be preserved...
     # Measured in seconds
     poll_interval: 60
 
-    # Override the builtin URL if you have forked this project, so people know
+    # Override the builtin URL if you've forked this project, so people know
     # how to contribute.
-    source_url: https://svn.civicrm.org/tools/trunk/bin/scripts/ircbot-civi.py
+    source_url: https://gerrit.wikimedia.org/g/wikimedia/fundraising/slander/+/refs/heads/master
 
 Running
 =======
@@ -89,6 +89,6 @@ IRC code adapted from Miki Tebeka's http://pythonwise.blogspot.com/2009/05/subve
 
 Markup stripper from Eloff's http://stackoverflow.com/a/925630
 
-Written by Adam Roses Wight
+Forked from https://github.com/adamwight/slander
 
-The project homepage is https://github.com/adamwight/slander
+The project homepage is https://gerrit.wikimedia.org/g/wikimedia/fundraising/slander/+/refs/heads/master
