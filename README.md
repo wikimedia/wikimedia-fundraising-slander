@@ -19,15 +19,34 @@ Config files are written in YAML, and are usually kept in the user's ".slander" 
 Here's an example configuration file--note that YAML is whitespace-sensitive,
 requires spaces, not tabs, and alignment must be preserved...
 
-	# List all jobs, keyed by type (FIXME: we should allow more than one per type)
+    # List all jobs, keyed by type (FIXME: we should allow more than one per type)
     jobs:
-	tail:
-		path: /var/log/meltdown
+        svn:
+            root: http://svn.civicrm.org/civicrm
+            args: --username SVN_USER --password SVN_PASSS
+            changeset_url_format:
+                https://fisheye2.atlassian.com/changelog/CiviCRM?cs=%s
 
-		# Trim some extraneous stuff from the loglines.
-		massage_regexes:
-			- "(?xi) ^ [A-Za-z]{3} \s+ \d+": ""
-			- "log_to_irc\[\d+\]": ""
+        jira:
+            base_url:
+                http://issues.civicrm.org/jira
+            source:
+                http://issues.civicrm.org/jira/activity?maxResults=20&streams=key+IS+CRM&title=undefined
+
+        # Gentle reader, now you know I'm lying and that the CiviCRM project
+        # does not use Mingle...  Anyway, grab this URL from Mingle's History
+        # -> All page.
+        mingle:
+            source:
+                https://wikimedia.mingle.thoughtworks.com/projects/online_fundraiser/feeds/WOjFYsRs1T04NhsqTdnSOA.atom
+
+        tail:
+            path: /var/log/meltdown
+
+            # Trim some extraneous stuff from the loglines.
+            massage_regexes:
+                - "(?xi) ^ [A-Za-z]{3} \s+ \d+": ""
+                - "log_to_irc\[\d+\]": ""
 
     irc:
         host: irc.freenode.net
