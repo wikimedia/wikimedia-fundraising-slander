@@ -21,25 +21,6 @@ requires spaces, not tabs, and alignment must be preserved...
 
     # List all jobs, keyed by type (FIXME: we should allow more than one per type)
     jobs:
-        svn:
-            root: http://svn.civicrm.org/civicrm
-            args: --username SVN_USER --password SVN_PASSS
-            changeset_url_format:
-                https://fisheye2.atlassian.com/changelog/CiviCRM?cs=%s
-
-        jira:
-            base_url:
-                http://issues.civicrm.org/jira
-            source:
-                http://issues.civicrm.org/jira/activity?maxResults=20&streams=key+IS+CRM&title=undefined
-
-        # Gentle reader, now you know I'm lying and that the CiviCRM project
-        # does not use Mingle...  Anyway, grab this URL from Mingle's History
-        # -> All page.
-        mingle:
-            source:
-                https://wikimedia.mingle.thoughtworks.com/projects/online_fundraiser/feeds/WOjFYsRs1T04NhsqTdnSOA.atom
-
         tail:
             path: /var/log/meltdown
 
