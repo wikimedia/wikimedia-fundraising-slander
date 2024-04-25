@@ -30,7 +30,7 @@ requires spaces, not tabs, and alignment must be preserved...
                 - "log_to_irc\[\d+\]": ""
 
     irc:
-        host: irc.freenode.net
+        host: irc.libera.chat
         port: 6667
         #ssl: True
         nick: civi-activity
