@@ -50,6 +50,7 @@ class RelayToIRC(irc.IRCClient):
             self.msg("NickServ", cmd)
 
     def signedOn(self):
+        self.mode(self.nickname, True, "B")
         self.join(self.channel, self.channel_key)
 
     def joined(self, channel):
