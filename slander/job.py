@@ -1,5 +1,6 @@
 import copy
 import re
+import traceback
 from twisted.internet.task import LoopingCall
 
 from . import log
@@ -40,18 +41,27 @@ class JobQueue(object):
         return jobs_desc
 
     def check(self):
+        # Using try to isolate each job so one bad feed entry or a log
+        # rotation only skips that job this round. Otherwise it could silently
+        # stop relaying.
         for job in JobQueue.jobs_def:
-            for line in job.check():
-                if line:
-                    line = self.massage_content(line, job)
-                    self.sink.write(line)
+            try:
+                lines = job.check() or []
+                for line in lines:
+                    if line:
+                        line = self.massage_content(line, job)
+                        self.sink.write(line)
+            except Exception:
+                log.error("Job %s failed, will retry next poll: %s" % (
+                    job.config.get('class'), traceback.format_exc()
+                ))
 
     def massage_content(self, line, job):
         """Do job-specific munging of the output line, when configured"""
 
         if "massage_regexes" in job.config:
             for masseuse in job.config["massage_regexes"]:
-                from_re, to_str = masseuse.items()[0]
+                from_re, to_str = list(masseuse.items())[0]
                 line = re.sub(from_re, to_str, line)
 
         return line
@@ -66,5 +76,10 @@ class JobQueue(object):
         JobQueue.killall()
         task = LoopingCall(self.check)
         JobQueue.threads = [task]
-        task.start(self.interval)
+        task.start(self.interval).addErrback(self.stopped)
         log.info("Started polling jobs, every %d seconds." % (self.interval, ))
+
+    def stopped(self, failure):
+        log.error("Job polling stopped unexpectedly: %s" % (
+            failure.getTraceback(),
+        ))
