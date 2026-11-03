@@ -3,7 +3,7 @@ import re
 
 from twisted.words.protocols import irc
 from twisted.internet.protocol import ReconnectingClientFactory
-from twisted.internet.ssl import ClientContextFactory
+from twisted.internet import ssl
 from twisted.internet import reactor
 
 from . import brain
@@ -92,7 +92,6 @@ class RelayToIRC(irc.IRCClient):
         factory.protocol = RelayToIRC
         factory.config = config
         if (config["irc"]["ssl"] is True):
-            sslClientContextFactory = ClientContextFactory()
             log.info("connecting to %s:%s using ssl" % (
                 config["irc"]["host"], config["irc"]["port"]
             ))
@@ -100,9 +99,12 @@ class RelayToIRC(irc.IRCClient):
                 config["irc"]["host"],
                 config["irc"]["port"],
                 factory,
-                sslClientContextFactory
+                tls_options(config["irc"]["host"])
             )
         else:
+            if "pass" in config["irc"] or "channel_key" in config["irc"]:
+                log.error("WARNING: sending IRC credentials without TLS. "
+                          "Set irc.ssl to True and use port 6697.")
             log.info("connecting to %s:%s" % (
                 config["irc"]["host"], config["irc"]["port"]
             ))
@@ -112,3 +114,11 @@ class RelayToIRC(irc.IRCClient):
                 factory
             )
         reactor.run()
+
+
+def tls_options(host):
+    """TLS client options that verify the server certificate against the
+    system trust store and check that it matches the hostname."""
+    if isinstance(host, bytes):
+        host = host.decode("ascii")
+    return ssl.optionsForClientTLS(hostname=host)
