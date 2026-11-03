@@ -41,9 +41,10 @@ class TailPoller(object):
         try:
             self.reload()
             self.read()
-        except IOError as ex:
-            log.error(ex)
-            return
+        except (IOError, OSError) as exception:
+            # edge case the file is briefly missing during log rotation
+            log.error("Tail of %s failed, will retry: %s" % (self.path, exception))
+            return []
 
         stripped = [line.strip() for line in self.output_buffer]
         self.output_buffer = []
