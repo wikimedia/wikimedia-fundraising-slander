@@ -31,8 +31,10 @@ requires spaces, not tabs, and alignment must be preserved...
 
     irc:
         host: irc.libera.chat
-        port: 6667
-        #ssl: True
+        # SSL/TLS is strongly recommended. Without it the NickServ password
+        # and channel key are sent in cleartext.
+        port: 6697
+        ssl: True
         nick: civi-activity
         # Optional unless your bot is registered
         pass: FOO
