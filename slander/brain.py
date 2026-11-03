@@ -1,8 +1,9 @@
 import re
-import json
 
-from . import job
 from . import log
+
+# Top-level config keys that are safe to show in the channel.
+PUBLIC_KEYS = ("source_url", "poll_interval", "mute", "deaf")
 
 
 class Brain(object):
@@ -11,16 +12,10 @@ class Brain(object):
     def __init__(self, config, sink=None):
         self.config = config
         self.sink = sink
-        if "irc" in self.config:
-            if "ownermail" in self.config["irc"]:
-                self.config["irc"]["ownermail"] = "xxx@example.com"
-            if "regverify" in self.config["irc"]:
-                self.config["irc"]["regverify"] = "*******"
-
         self.source_url = self.config["source_url"]
 
     def say(self, message, force=False):
-        if not force and 'mute' in self.config and int(self.config['mute']):
+        if not force and self.config.get('mute'):
             log.info("muffling msg: " + message)
             return
         self.sink.say(self.sink.channel, message)
@@ -30,23 +25,15 @@ class Brain(object):
             msg = "Improve this project: {src}".format(src=self.source_url)
             self.say(msg)
         elif re.search(r'\bconfig\b', message):
-            assignment_re = r"""(?x)
-                \b
-                (?P<name> [^=\s]+ )
-                \s* = \s*
-                (?P<value> \S+ )
-            """
-            match = re.search(assignment_re, message)
-            if match:
-                self.config[match.group('name')] = match.group('value')
-
-            dump = self.config
-            dump['jobs'] = job.JobQueue.describe()
-            dumpstr = json.dumps(self.redact(dump))
-            self.say(
-                "Configuration: [{dump}]".format(dump=dumpstr),
-                force=True
+            # Read-only, allowlisted summary. Never echo the raw config since
+            # it holds secrets: NickServ password, channel key, etc.
+            summary = ", ".join(
+                "%s=%s" % (k, self.config[k])
+                for k in PUBLIC_KEYS if k in self.config
             )
+            jobs = ", ".join(sorted(self.config.get("jobs", {})))
+            self.say("Configuration: [%s, jobs=%s]" % (summary, jobs),
+                     force=True)
         # elif re.search(r'\bkill\b', message):
         #     self.say("Squeal! Killed by %s" % (user, ))
         #     job.JobQueue.killall()
@@ -61,15 +48,3 @@ class Brain(object):
             log.error("Failed to handle IRC command: {user} said {msg}".format(
                 user=user, msg=message
             ))
-
-    def redact(self, data):
-        FORBIDDEN_KEY_PATTERN = r'pw|pass|password'
-        BLACKOUT = "p***word"
-
-        for key, value in data.items():
-            if re.match(FORBIDDEN_KEY_PATTERN, key):
-                data[key] = BLACKOUT
-            elif hasattr(value, 'items'):
-                data[key] = self.redact(value)
-
-        return data
