@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from twisted.words.protocols import irc
 from twisted.internet.protocol import ReconnectingClientFactory
@@ -65,8 +66,17 @@ class RelayToIRC(irc.IRCClient):
         source.run()
 
     def privmsg(self, user, channel, message):
-        if not self.config["deaf"] and message.find(self.nickname) >= 0:
-            self.brain.respond(user, message)
+        # Only answer in our own channel (not private messages) and only when
+        # directly addressed: "nick: cmd".
+        if self.config["deaf"] or channel.lower() != self.channel.lower():
+            return
+        addressed = re.match(
+            r"^\s*%s\s*:\s*(.*)" % re.escape(self.nickname),
+            message,
+            re.IGNORECASE
+        )
+        if addressed:
+            self.brain.respond(user, addressed.group(1))
 
     def write(self, data):
         if isinstance(data, list):
