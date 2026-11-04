@@ -44,6 +44,10 @@ requires spaces, not tabs, and alignment must be preserved...
         #channel_key: "channel-password"
         # Truncate messages longer than this many characters
         maxlen: 200
+        # Flood control: seconds between lines sent, and the most lines
+        # relayed per poll_interval (extra lines are counted but not sent)
+        line_rate: 1.0
+        max_lines: 20
 
     # Measured in seconds
     poll_interval: 60

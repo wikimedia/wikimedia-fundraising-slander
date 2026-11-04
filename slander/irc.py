@@ -29,7 +29,7 @@ class RelayToIRC(irc.IRCClient):
             self.channel_key = ""
         if "maxlen" in self.config["irc"]:
             text.maxlen = self.config["irc"]["maxlen"]
-
+        self.configure_flood_control()
         self.sourceURL = self.config["source_url"]
 
         irc.IRCClient.connectionMade(self)
@@ -78,13 +78,51 @@ class RelayToIRC(irc.IRCClient):
         if addressed:
             self.brain.respond(user, addressed.group(1))
 
+    def configure_flood_control(self, clock=reactor):
+        """Throttle and cap relayed output so a burst of log lines or a big
+        feed won't flood the channel or get the bot k-lined."""
+        irc_config = self.config["irc"]
+        # Seconds between lines sent to the server (Twisted queues the rest)
+        self.lineRate = float(irc_config.get("line_rate", 1.0))
+        # Max relayed lines per window; the rest are counted and summarized
+        self.max_lines = int(irc_config.get("max_lines", 20))
+        self.window = float(self.config.get("poll_interval", 60))
+        self.clock = clock
+        self.window_start = clock.seconds()
+        self.sent_in_window = 0
+        self.suppressed = 0
+        self.flush_call = None
+
     def write(self, data):
         if isinstance(data, list):
             for line in data:
                 self.write(line)
             return
-        self.say(self.channel, data.encode('ascii', 'replace'))
+        now = self.clock.seconds()
+        if now - self.window_start >= self.window:
+            self.window_start = now
+            self.sent_in_window = 0
+
+        if self.sent_in_window >= self.max_lines:
+            self.suppressed += 1
+            if self.flush_call is None:
+                delay = self.window_start + self.window - now
+                self.flush_call = self.clock.callLater(
+                    delay, self.report_suppressed)
+            return
+
+        self.sent_in_window += 1
+        line = text.trunc(data)
+        self.say(self.channel, line.encode('ascii', 'replace'))
         self.timestamp = datetime.datetime.utcnow()
+
+    def report_suppressed(self):
+        self.flush_call = None
+        if self.suppressed:
+            log.error("Flood control dropped %d lines" % (self.suppressed, ))
+            self.say(self.channel, "[flood control: %d more lines dropped]"
+                     % (self.suppressed, ))
+            self.suppressed = 0
 
     @staticmethod
     def run(config):
