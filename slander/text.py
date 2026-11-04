@@ -50,3 +50,22 @@ def trunc(message):
         return (message[:(maxlen-3)] + "...")
     else:
         return message
+
+
+def ascii_safe(data):
+    """Return data as a native str with non-ASCII characters replaced by '?'.
+
+    Twisted wants a native str (bytes on python 2, text on python 3). This
+    routine accepts either bytes (decoded as UTF-8) or text, so it never
+    raises an exception on odd input. (Haven't fully tested on python 2 but
+    trying to keep backwards compatibility.)
+    """
+    if isinstance(data, bytes):
+        data = data.decode('utf-8', 'replace')
+
+    data = data.encode('ascii', 'replace')
+
+    if not isinstance(data, str):
+        # python 3: back from bytes to text
+        data = data.decode('ascii')
+    return data

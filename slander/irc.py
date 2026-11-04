@@ -112,8 +112,8 @@ class RelayToIRC(irc.IRCClient):
             return
 
         self.sent_in_window += 1
-        line = text.trunc(data)
-        self.say(self.channel, line.encode('ascii', 'replace'))
+        line = text.trunc(text.ascii_safe(data))
+        self.say(self.channel, line)
         self.timestamp = datetime.datetime.utcnow()
 
     def report_suppressed(self):
