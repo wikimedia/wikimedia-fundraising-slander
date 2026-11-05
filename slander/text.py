@@ -1,15 +1,7 @@
 """Helpers for text manipulation"""
 
 import re
-import sys
-
-if sys.version_info > (3, 0):
-    # Python 3 code in this block
-    from html.parser import HTMLParser
-else:
-    # Python 2 code in this block
-    from HTMLParser import HTMLParser
-
+from html.parser import HTMLParser
 
 MAXLEN = 200
 

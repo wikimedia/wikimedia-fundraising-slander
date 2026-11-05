@@ -6,7 +6,7 @@ from . import log
 PUBLIC_KEYS = ("source_url", "poll_interval", "mute", "deaf")
 
 
-class Brain(object):
+class Brain:
     """Respond to incoming commands"""
 
     def __init__(self, config, sink=None):

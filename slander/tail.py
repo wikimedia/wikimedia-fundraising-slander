@@ -4,7 +4,7 @@ import os.path
 from . import log
 
 
-class TailPoller(object):
+class TailPoller:
     """Tail -f a file as the message source"""
 
     def __init__(self, path=None, **kw):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='slander',
-    version='0.1',
+    version='0.2',
     install_requires=[
         'feedparser',
         'irc',

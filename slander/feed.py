@@ -3,7 +3,7 @@ import feedparser
 from . import log
 
 
-class FeedPoller(object):
+class FeedPoller:
     """
     Generic RSS/Atom feed watcher
     """
