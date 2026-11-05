@@ -3,7 +3,7 @@
 import re
 import sys
 
-if (sys.version_info > (3, 0)):
+if sys.version_info > (3, 0):
     # Python 3 code in this block
     from html.parser import HTMLParser
 else:
@@ -11,7 +11,7 @@ else:
     from HTMLParser import HTMLParser
 
 
-maxlen = 200
+MAXLEN = 200
 
 
 def strip(msg, html=True, space=True, truncate=False):
@@ -46,10 +46,10 @@ def abbrevs(name):
 
 
 def trunc(message):
-    if len(message) > maxlen:
-        return (message[:(maxlen-3)] + "...")
-    else:
-        return message
+    if len(message) > MAXLEN:
+        return message[:(MAXLEN-3)] + "..."
+
+    return message
 
 
 def ascii_safe(data):

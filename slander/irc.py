@@ -28,26 +28,24 @@ class RelayToIRC(irc.IRCClient):
         else:
             self.channel_key = ""
         if "maxlen" in self.config["irc"]:
-            text.maxlen = self.config["irc"]["maxlen"]
+            text.MAXLEN = self.config["irc"]["maxlen"]
         self.configure_flood_control()
-        self.sourceURL = self.config["source_url"]
+        self.sourceURL = self.config["source_url"]  # pylint: disable=C0103
 
         irc.IRCClient.connectionMade(self)
 
         if "pass" in self.config["irc"]:
             if "ownermail" in self.config["irc"]:
-                cmd = "REGISTER {password} {addr}".format(
-                    password=self.config["irc"]["pass"],
-                    addr=self.config["irc"]["ownermail"]
-                )
+                password = self.config["irc"]["pass"]
+                addr = self.config["irc"]["ownermail"]
+                cmd = f"REGISTER {password} {addr}"
                 self.msg("NickServ", cmd)
             elif "regverify" in self.config["irc"]:
-                cmd = "VERIFY REGISTER {nick} {verify}".format(
-                    nick=self.config["irc"]["nick"],
-                    verify=self.config["irc"]["regverify"]
-                )
+                nick = self.config["irc"]["nick"]
+                verify = self.config["irc"]["regverify"]
+                cmd = f"VERIFY REGISTER {nick} {verify}"
                 self.msg("NickServ", cmd)
-            cmd = "IDENTIFY {pw}".format(pw=self.config["irc"]["pass"])
+            cmd = f"IDENTIFY {self.config['irc']['pass']}"
             self.msg("NickServ", cmd)
 
     def signedOn(self):
@@ -55,7 +53,7 @@ class RelayToIRC(irc.IRCClient):
         self.join(self.channel, self.channel_key)
 
     def joined(self, channel):
-        log.info("Joined channel %s as %s" % (channel, self.nickname))
+        log.info(f"Joined channel {channel} as {self.nickname}")
         self.brain = brain.Brain(self.config, sink=self)
         # XXX get outta here:
         source = job.JobQueue(
@@ -71,7 +69,7 @@ class RelayToIRC(irc.IRCClient):
         if self.config["deaf"] or channel.lower() != self.channel.lower():
             return
         addressed = re.match(
-            r"^\s*%s\s*:\s*(.*)" % re.escape(self.nickname),
+            rf"^\s*{re.escape(self.nickname)}\s*:\s*(.*)",
             message,
             re.IGNORECASE
         )
@@ -83,7 +81,7 @@ class RelayToIRC(irc.IRCClient):
         feed won't flood the channel or get the bot k-lined."""
         irc_config = self.config["irc"]
         # Seconds between lines sent to the server (Twisted queues the rest)
-        self.lineRate = float(irc_config.get("line_rate", 1.0))
+        self.lineRate = float(irc_config.get("line_rate", 1.0))  # pylint: disable=C0103
         # Max relayed lines per window; the rest are counted and summarized
         self.max_lines = int(irc_config.get("max_lines", 20))
         self.window = float(self.config.get("poll_interval", 60))
@@ -119,9 +117,8 @@ class RelayToIRC(irc.IRCClient):
     def report_suppressed(self):
         self.flush_call = None
         if self.suppressed:
-            log.error("Flood control dropped %d lines" % (self.suppressed, ))
-            self.say(self.channel, "[flood control: %d more lines dropped]"
-                     % (self.suppressed, ))
+            log.error(f"Flood control dropped {self.suppressed} lines")
+            self.say(self.channel, f"[flood control: {self.suppressed} more lines dropped]")
             self.suppressed = 0
 
     @staticmethod
@@ -129,10 +126,8 @@ class RelayToIRC(irc.IRCClient):
         factory = ReconnectingClientFactory()
         factory.protocol = RelayToIRC
         factory.config = config
-        if (config["irc"]["ssl"] is True):
-            log.info("connecting to %s:%s using ssl" % (
-                config["irc"]["host"], config["irc"]["port"]
-            ))
+        if config["irc"]["ssl"] is True:
+            log.info(f"connecting to {config['irc']['host']}:{config['irc']['port']} using ssl")
             reactor.connectSSL(
                 config["irc"]["host"],
                 config["irc"]["port"],
@@ -143,9 +138,7 @@ class RelayToIRC(irc.IRCClient):
             if "pass" in config["irc"] or "channel_key" in config["irc"]:
                 log.error("WARNING: sending IRC credentials without TLS. "
                           "Set irc.ssl to True and use port 6697.")
-            log.info("connecting to %s:%s" % (
-                config["irc"]["host"], config["irc"]["port"]
-            ))
+            log.info(f"connecting to {config['irc']['host']}:{config['irc']['port']}")
             reactor.connectTCP(
                 config["irc"]["host"],
                 config["irc"]["port"],

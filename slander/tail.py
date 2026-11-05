@@ -8,7 +8,7 @@ class TailPoller(object):
     """Tail -f a file as the message source"""
 
     def __init__(self, path=None, **kw):
-        log.info("Initializing file tailer on: [{path}]".format(path=path))
+        log.info(f"Initializing file tailer on: [{path}]")
 
         self.path = path
         self.inode = os.stat(self.path).st_ino
@@ -32,7 +32,7 @@ class TailPoller(object):
                 self.file = None
 
         if not self.file:
-            self.file = open(self.path, "r")
+            self.file = open(self.path, "r", encoding="utf-8")
             self.inode = os.fstat(self.file.fileno()).st_ino
 
     def check(self):
@@ -43,7 +43,7 @@ class TailPoller(object):
             self.read()
         except (IOError, OSError) as exception:
             # edge case the file is briefly missing during log rotation
-            log.error("Tail of %s failed, will retry: %s" % (self.path, exception))
+            log.error(f"Tail of {self.path} failed, will retry: {exception}")
             return []
 
         stripped = [line.strip() for line in self.output_buffer]

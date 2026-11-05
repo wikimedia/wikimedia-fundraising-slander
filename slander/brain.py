@@ -22,29 +22,26 @@ class Brain(object):
 
     def respond(self, user, message):
         if re.search(r'\bhelp\b', message):
-            msg = "Improve this project: {src}".format(src=self.source_url)
+            msg = f"Improve this project: {self.source_url}"
             self.say(msg)
         elif re.search(r'\bconfig\b', message):
             # Read-only, allowlisted summary. Never echo the raw config since
             # it holds secrets: NickServ password, channel key, etc.
             summary = ", ".join(
-                "%s=%s" % (k, self.config[k])
+                f"{k}={self.config[k]}"
                 for k in PUBLIC_KEYS if k in self.config
             )
             jobs = ", ".join(sorted(self.config.get("jobs", {})))
-            self.say("Configuration: [%s, jobs=%s]" % (summary, jobs),
-                     force=True)
+            self.say(f"Configuration: [{summary}, jobs={jobs}]", force=True)
         # elif re.search(r'\bkill\b', message):
-        #     self.say("Squeal! Killed by %s" % (user, ))
+        #     self.say(f"Squeal! Killed by {user}")
         #     job.JobQueue.killall()
         #     #self.quit()
         #     #self.factory.stopTrying()
         elif re.search(r'\blast\b', message):
             if self.sink.timestamp:
-                self.say("My last post was %s UTC" % (self.sink.timestamp, ))
+                self.say(f"My last post was {self.sink.timestamp} UTC")
             else:
                 self.say("No activity.")
         else:
-            log.error("Failed to handle IRC command: {user} said {msg}".format(
-                user=user, msg=message
-            ))
+            log.error(f"Failed to handle IRC command: {user} said {message}")

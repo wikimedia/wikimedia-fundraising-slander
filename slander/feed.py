@@ -11,16 +11,14 @@ class FeedPoller(object):
     last_seen_id = None
 
     def __init__(self, source=None):
-        log.info("Initializing feed poller: %s" % (source, ))
+        log.info(f"Initializing feed poller: {source}")
         self.source = source
 
     def check(self):
         result = feedparser.parse(self.source)
         # https://feedparser.readthedocs.io/en/latest/bozo/
         if result.get('bozo') and not result.entries:
-            log.error("Failed to parse feed %s: %s" % (
-                self.source, result.get('bozo_exception')
-            ))
+            log.error(f"Failed to parse feed {self.source}: {result.get('bozo_exception')}")
             return []
         entries = list(reversed(result.entries))
         new = []
@@ -42,4 +40,4 @@ class FeedPoller(object):
         return entry.get('id') or entry.get('link') or entry.get('title')
 
     def parse(self, entry):
-        return "%s [%s]" % (entry.get('summary', ''), entry.get('link', ''))
+        return f"{entry.get('summary', '')} [{entry.get('link', '')}]"

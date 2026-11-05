@@ -35,7 +35,7 @@ class JobQueue(object):
     @staticmethod
     def describe():
         jobs_desc = ", ".join(
-            [("%s: %s" % (j.config['class'], j.config))
+            [(f"{j.config['class']}: {j.config}")
                 for j in JobQueue.jobs_def]
         )
         return jobs_desc
@@ -51,10 +51,10 @@ class JobQueue(object):
                     if line:
                         line = self.massage_content(line, job)
                         self.sink.write(line)
-            except Exception:
-                log.error("Job %s failed, will retry next poll: %s" % (
-                    job.config.get('class'), traceback.format_exc()
-                ))
+            except Exception:  # pylint: disable=W0718
+                job_class = job.config.get('class')
+                error_trace = traceback.format_exc()
+                log.error(f"Job {job_class} failed, will retry next poll: {error_trace}")
 
     def massage_content(self, line, job):
         """Do job-specific munging of the output line, when configured"""
@@ -77,9 +77,7 @@ class JobQueue(object):
         task = LoopingCall(self.check)
         JobQueue.threads = [task]
         task.start(self.interval).addErrback(self.stopped)
-        log.info("Started polling jobs, every %d seconds." % (self.interval, ))
+        log.info(f"Started polling jobs, every {self.interval} seconds.")
 
     def stopped(self, failure):
-        log.error("Job polling stopped unexpectedly: %s" % (
-            failure.getTraceback(),
-        ))
+        log.error(f"Job polling stopped unexpectedly: {failure.getTraceback()}")
